@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+{% load staticfiles %}
+<meta charset="utf-8">
+<title>Untitled Document</title>
+<link rel="stylesheet" type="text/css" href="{%static 'css/annotorious.css'%}"/>
+<script src="{%static 'annotorious.min.js'%}"></script>
+<script src="{%static 'jquery-1.11.1.min.js'%}"></script>
+<script src="{%static 'jquery.cookie.js'%}"></script>
+<script>
+var annotObj;
+var annotObjs=[];
+function annotClass(x,y,msg)
+{
+	this.x=x;
+	this.y=y;
+	this.msg=msg;
+}
+<!--var image=document.getElementById("sample");-->
+anno.addHandler('onAnnotationCreated',function(annotation)
+	{
+		alert(annotation.text);
+		document.addEventListener('onmouseclick',recordXYText(event,annotation));
+		       
+	});
+	function recordXYText(e,annotation)
+	{
+		annotObj=new annotClass(e.clientX,e.clientY,annotation.text);
+		//alert("hey"+e.clientX+""+e.clientY+""+annotation.text);
+		annotObjs.push(annotObj);
+		console.log(annotObj);
+	
+	}
+	var csrftoken = $.cookie('csrftoken');
+	function csrfSafeMethod(method) {
+	    // these HTTP methods do not require CSRF protection
+	    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+	$.ajaxSetup({
+	    beforeSend: function(xhr, settings) {
+	        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+	            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+	        }
+	    }
+	});
+	function submitAnnotations()
+	{
+		
+		alert(JSON.stringify(annotObjs));
+	
+		$.ajax(
+				{
+				url : "index1/",
+				type: "POST",
+				data : JSON.stringify(annotObjs),
+				success: function(data, textStatus, jqXHR)
+				{
+					alert(data);
+					//data: data from server 
+				},
+				error: function(jqXHR, textStatus, errorThrown)
+				{
+						alert(jqXHR);
+				}
+				});
+		//alert(annotObjs[0].msg);
+	}
+</script>
+</head>
+
+<body>
+<div style="display:none">
+    <input type="hidden" name="csrfmiddlewaretoken" value="$csrf_token"/>
+</div>
+<img src="{%static 'Question-Mark.jpg'%}" width="500" height="500" alt="" class="annotatable" id="sample"/>
+{% csrf_token %}
+<input type="submit" name="submit" id="submit" value="Submit" onClick="submitAnnotations()">
+</body>
+</html>
