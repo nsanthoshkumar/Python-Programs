@@ -27,6 +27,7 @@ def index1(request):
         for anData in inputToDB:
             a=Annotation(x=anData['x'],y=anData['y'],msg=anData['msg'])
             print a.msg
+	    #making a persistent storage
             a.save()
        # a=inputToDB
         #print a
